@@ -43,7 +43,14 @@ public class ServerManager {
                         }
                     } else if (key.isReadable()) {
                         if(key.channel() instanceof SocketChannel) {
-                            handleRequest((SocketChannel) key.channel());
+                            try{
+                                handleRequest((SocketChannel) key.channel());
+                            } catch (Exception e) {
+                                System.err.println(e);
+                                key.channel().close();
+                                key.cancel();
+                            }
+
                             iterator.remove();
                         }
                     }/* else if (key.isWritable()) {
