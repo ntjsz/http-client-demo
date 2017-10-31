@@ -71,10 +71,30 @@ public class ServerManager {
 
             byte[] b = new byte[count];
             byteBuffer.get(b);
-            System.out.println(new String(b));
+            String s = new String(b);
+
+            System.out.println(s);
+            System.out.println(socketChannel.getRemoteAddress());
+
             byteBuffer.clear();
             response.flip();
+
+            if(delay(s)) {
+                System.out.println("delay this.");
+                System.out.println("=====");
+                return;
+            }
+            System.out.println("=====");
             socketChannel.write(response);
+
         }
+    }
+
+    static boolean delay(String s) {
+        String sub = s.substring(0, s.indexOf('\n'));
+        return sub.indexOf('2') > 0
+                || sub.indexOf('3') > 0
+                || sub.indexOf('4') > 0
+                || sub.indexOf('5') > 0;
     }
 }

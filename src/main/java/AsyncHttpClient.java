@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Future;
 
 /**
@@ -27,7 +28,7 @@ public class AsyncHttpClient {
         CloseableHttpAsyncClient asyncClient
                 = HttpAsyncClients.custom()
                 .setDefaultIOReactorConfig(b.build())
-                .setMaxConnPerRoute(2)
+                .setMaxConnPerRoute(4)
                 .setEventHandler(new HttpAsyncRequestExecutor(HttpAsyncRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE, new ExceptionLogger() {
                     public void log(Exception ex) {
                         LOGGER.error("hht", ex);
@@ -38,55 +39,31 @@ public class AsyncHttpClient {
 
         try {
             asyncClient.start();
-            HttpGet httpGet0 = new HttpGet("http://10.7.0.136:1234/zone/wishPutGift0");
-            HttpGet httpGet1 = new HttpGet("http://10.7.0.136:1234/zone/wishPutGift1");
-            HttpGet httpGet2 = new HttpGet("http://10.7.0.136:1234/zone/wishPutGift2");
-            //HttpGet httpGet = new HttpGet("http://127.0.0.1:8099/zone/getGameHumanInfo?humanId=501300011");
-            //HttpGet httpGet = new HttpGet("http://10.7.2.252:8099/zone/getGameHumanInfo?humanId=501300");
-            Future<HttpResponse> f0 = asyncClient.execute(httpGet0, new FutureCallback<HttpResponse>() {
-                public void completed(HttpResponse result) {
 
-                    LOGGER.info("get0" + result.toString());
-                }
+            int count = 7;
+            ArrayList<HttpGet> gets = new ArrayList<>();
+            for(int i = 0; i < count; i++) {
+                gets.add(new HttpGet("http://10.7.0.136:1234/zone/wishPutGift" + i));
+            }
 
-                public void failed(Exception ex) {
-                    LOGGER.error("hht2", ex);
-                }
 
-                public void cancelled() {
-                    LOGGER.error("hht3");
-                }
-            });
+            for(int i = 0; i < count; i++) {
+                final int index = i;
+                Future<HttpResponse> f0 = asyncClient.execute(gets.get(i), new FutureCallback<HttpResponse>() {
+                    public void completed(HttpResponse result) {
 
-            Future<HttpResponse> f1 = asyncClient.execute(httpGet1, new FutureCallback<HttpResponse>() {
-                public void completed(HttpResponse result) {
+                        LOGGER.info("get" + index + result.toString());
+                    }
 
-                    LOGGER.info("get1" + result.toString());
-                }
+                    public void failed(Exception ex) {
+                        LOGGER.error("hht2", ex);
+                    }
 
-                public void failed(Exception ex) {
-                    LOGGER.error("hht2", ex);
-                }
-
-                public void cancelled() {
-                    LOGGER.error("hht3");
-                }
-            });
-
-            Future<HttpResponse> f2 = asyncClient.execute(httpGet2, new FutureCallback<HttpResponse>() {
-                public void completed(HttpResponse result) {
-
-                    LOGGER.info("get2" + result.toString());
-                }
-
-                public void failed(Exception ex) {
-                    LOGGER.error("hht2", ex);
-                }
-
-                public void cancelled() {
-                    LOGGER.error("hht3");
-                }
-            });
+                    public void cancelled() {
+                        LOGGER.error("hht3");
+                    }
+                });
+            }
 
             System.in.read();
         } catch (IOException e) {
