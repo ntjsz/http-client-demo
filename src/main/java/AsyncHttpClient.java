@@ -22,13 +22,13 @@ public class AsyncHttpClient {
     public static void main(String[] args) {
         IOReactorConfig.Builder b = IOReactorConfig.custom();
         b.setConnectTimeout(1000);
-        b.setIoThreadCount(3);
+        b.setIoThreadCount(1);
         //b.setSoTimeout(1000);
 
         CloseableHttpAsyncClient asyncClient
                 = HttpAsyncClients.custom()
                 .setDefaultIOReactorConfig(b.build())
-                .setMaxConnPerRoute(4)
+                .setMaxConnPerRoute(1)
                 .setEventHandler(new HttpAsyncRequestExecutor(HttpAsyncRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE, new ExceptionLogger() {
                     public void log(Exception ex) {
                         LOGGER.error("hht", ex);
@@ -40,7 +40,7 @@ public class AsyncHttpClient {
         try {
             asyncClient.start();
 
-            int count = 7;
+            int count = 1;
             ArrayList<HttpGet> gets = new ArrayList<>();
             for(int i = 0; i < count; i++) {
                 gets.add(new HttpGet("http://10.7.0.136:1234/zone/wishPutGift" + i));

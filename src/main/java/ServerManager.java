@@ -21,6 +21,7 @@ public class ServerManager {
         byteBuffer = ByteBuffer.allocateDirect(1024);
         response = ByteBuffer.allocate(1024);
         response.put(re.getBytes());
+        response.flip();
 
         Selector selector = Selector.open();
         ServerSocketChannel server = ServerSocketChannel.open();
@@ -53,10 +54,7 @@ public class ServerManager {
 
                             iterator.remove();
                         }
-                    }/* else if (key.isWritable()) {
-                        if(key.channel() instanceof SocketChannel) {
-                        }
-                    }*/
+                    }
                 }
             }
         }
@@ -77,16 +75,17 @@ public class ServerManager {
             System.out.println(socketChannel.getRemoteAddress());
 
             byteBuffer.clear();
-            response.flip();
+            response.rewind();
 
             if(delay(s)) {
                 System.out.println("delay this.");
                 System.out.println("=====");
                 return;
             }
-            System.out.println("=====");
-            socketChannel.write(response);
 
+            int writeCount = socketChannel.write(response);
+            System.out.println("write:" + writeCount);
+            System.out.println("=====");
         }
     }
 
